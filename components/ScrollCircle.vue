@@ -1,127 +1,112 @@
 <template lang="pug">
   .scroll-circle
     .circle-container
-      .circle
-        img(src="/circle.png" alt="circle")
-        .circle-inner
-
-        .points(data-points)
-    
-    .interception-line
+      CircleRender(:options="oneOption || options" :rotate="rotation")
+      .here {{ animation }}
+    client-only
+      MatchMedia(:max-width="900" v-slot="{match}" @change="setObservers")
+        .lines
+          template(v-if="!match")
+            .interception-line(
+              v-for="(option, index) in options"
+              :key="option.title"
+              :data-index="index")
 
 
 </template>
 
 <script>
-const LABELS_EXPAND = 0 // Дополнительное увеличение ширины лейблов
-const LABELS_EXPAND2 = 0 // Дополнительное увеличение ширины лейблов
-
-function getRad(deg) {
-  return (deg * Math.PI) / 180
-}
-
-function heaviside(x) {
-  return x > 0 ? 1 : 0
-}
-
-function specifyCoords({ x, y }, { width, height }, angle) {
-  const cos = Math.cos(getRad(angle))
-  const sin = Math.sin(getRad(angle))
-
-  const center = {
-    x: (width + LABELS_EXPAND) / 2,
-    y: (height + LABELS_EXPAND2) / 2,
-  }
-  return {
-    x: x + (heaviside(Math.sign(cos)) - 1) * width,
-    //  - center.x + cos * center.x + LABELS_EXPAND / 2,
-    y: y - heaviside(Math.sign(cos)) * height,
-    // - center.y + sin * center.y + LABELS_EXPAND2 / 2,
-  }
-}
-
-const RADIUS = 260
-
-const ELEM = {
-  title: 'Тренировки',
-  angle: 70,
-  clockwise: 1,
-  items: [
-    'укрепите мышцы спины',
-    'вернётесь в свою лучшую форму',
-    'узнаете, как эффективно тренироваться лёжа',
-    'попробуете разное и найдёте вид тренировок, который вам по душе',
-  ],
-}
+const OPTIONS = [
+  {
+    title: 'Тренировки',
+    angle: 60,
+    clockwise: true,
+    color: '#7448D9',
+    items: [
+      'укрепите мышцы спины',
+      'вернётесь в свою лучшую форму',
+      'узнаете, как эффективно тренироваться лёжа',
+      'попробуете разное и найдёте вид тренировок, который вам по душе',
+      'научитесь тренироваться в удовольствие',
+    ],
+  },
+  {
+    title: 'Питание',
+    angle: -40,
+    clockwise: true,
+    color: '#EABA92',
+    items: [
+      'подберёте режим питания, который подходит именно вам',
+      'построите здоровый рацион',
+      'узнаете, как перестать переедать и заедать стресс',
+    ],
+  },
+  {
+    title: 'Знания',
+    angle: -210,
+    color: '#BC65CD',
+    items: [
+      'узнаете, как лучше спать и высыпаться',
+      'научитесь находить время на себя, тренировки и здоровое питание',
+      'изучите разработки #sekta: базовое состояние, циклы мотивации и New normal',
+      'узнаете простые, но эффективные способы ухода за кожей',
+    ],
+  },
+]
 
 import Vue from 'vue'
 export default Vue.extend({
-  mounted() {
-    const $circle = document.querySelector('.scroll-circle')
-    const $line = document.querySelector('.interception-line')
-    const options = {
-      root: null,
-      threshold: [0.0, 1.0],
+  data() {
+    return {
+      options: OPTIONS,
+      animation: null,
+      oneOption: null,
     }
-    const callback = function (entries, observer) {
-      entries.forEach((el) => {
-        // if (el.intersectionRatio === 1) {
-        //   $circle.style.position = 'sticky'
-        // } else {
-        //   $circle.style.position = 'relative'
-        // }
-        console.log(el.intersectionRatio)
-      })
-    }
-    const observer = new IntersectionObserver(callback, options)
-
-    observer.observe($line)
-
-    // -======================================- //
-    const $points = document.querySelector('[data-points]')
-    const $title = document.createElement('div')
-    $title.innerHTML = ELEM.title
-
-    const coords = {
-      x: RADIUS * Math.cos(getRad(ELEM.angle)),
-      y: RADIUS * Math.sin(getRad(ELEM.angle)),
-    }
-
-    $title.style.position = 'absolute'
-
-    $points?.insertAdjacentElement('afterbegin', $title)
-
-    const rect = $title.getBoundingClientRect()
-    const c = specifyCoords(coords, rect, ELEM.angle)
-
-    $title.style.left = c.x + 'px'
-    $title.style.bottom = c.y + 'px'
-
-    // Items
-    const d = ELEM.clockwise ? -1 : 1
-    let a = ELEM.angle + 20 * d
-    ELEM.items.forEach((text, index) => {
-      const $item = document.createElement('div')
-      $item.innerHTML = text
-      $item.style.position = 'absolute'
-      $item.style.width = 'max-content'
-      $item.style.maxWidth = '180px'
-      $points?.insertAdjacentElement('afterbegin', $item)
-
-      const coords = {
-        x: RADIUS * Math.cos(getRad(a)),
-        y: RADIUS * Math.sin(getRad(a)),
+  },
+  watch: {
+    animation(value) {
+      if (value !== null) {
+        this.oneOption = [
+          { ...this.options[value], angle: 60, clockwise: true },
+        ]
       }
-      const rect = $item.getBoundingClientRect()
-      const c = specifyCoords(coords, rect, a)
+    },
+  },
+  computed: {
+    rotation() {
+      if (this.animation === null) return 'rotate(0deg)'
+      return `rotate(${OPTIONS[this.animation].angle - 60}deg)`
+    },
+  },
+  methods: {
+    setObservers(value) {
+      if (document && !value) {
+        setTimeout(() => {
+          const $lines = document.querySelector('.lines')
 
-      const an = (rect.height / RADIUS / Math.PI) * 180
-      a = a + d * an + d * 7
+          const options = {
+            root: null,
+            threshold: 0,
+            rootMargin: '-50% 0% -50% 0%',
+          }
+          const callback = (entries, observer) => {
+            entries.forEach((el) => {
+              if (el.isIntersecting) {
+                this.animation = el.target.dataset.index
+              }
+            })
+          }
+          const observer = new IntersectionObserver(callback, options)
 
-      $item.style.width = rect.width + 'px'
-      $item.style.left = c.x + 'px'
-      $item.style.bottom = c.y + 'px'
-    })
+          Array.from($lines.children).forEach(($line) => {
+            observer.observe($line)
+          })
+        })
+      } else {
+        this.animation = null
+        this.oneOption = null
+      }
+    },
   },
 })
 </script>
@@ -139,41 +124,28 @@ export default Vue.extend({
     align-items: center;
     justify-content: center;
     height: 100vh;
-  }
-  .circle {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    max-width: 520px;
-    max-height: 520px;
+    padding: 0 200px;
+    width: 100%;
 
-    img {
-      width: 100%;
-      height: 100%;
+    .here {
+      position: absolute;
+      top: 0;
+      right: 0;
     }
 
-    .circle-inner {
-      position: absolute;
-      bottom: 5px;
-      right: 5px;
-      left: 5px;
-      top: 5px;
-      background: white;
-      border-radius: 520px;
-    }
-
-    .points {
-      position: absolute;
-      bottom: 50%;
-      right: 50%;
-      left: 50%;
-      top: 50%;
+    @media screen and (max-width: 900px) {
+      padding: 0;
+      justify-content: flex-start;
     }
   }
 
-  .interception-line {
-    height: 3000px;
+  .lines {
+    .interception-line {
+      @media screen and (max-width: 900px) {
+        width: 100%;
+        height: 800px;
+      }
+    }
   }
 }
 </style>
