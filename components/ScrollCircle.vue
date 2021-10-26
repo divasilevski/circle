@@ -1,7 +1,9 @@
 <template lang="pug">
   .scroll-circle
+    
     .circle-container
-      CircleRender(:options="oneOption || options" :rotate="rotation")
+      CircleShape(:options="oneOption || options")
+      //- CircleRender(:options="oneOption || options" :rotate="rotation")
       .here {{ animation }}
     client-only
       MatchMedia(:max-width="900" v-slot="{match}" @change="setObservers")
@@ -19,7 +21,7 @@
 const OPTIONS = [
   {
     title: 'Тренировки',
-    angle: 60,
+    angle: 55,
     clockwise: true,
     color: '#7448D9',
     items: [
@@ -32,7 +34,7 @@ const OPTIONS = [
   },
   {
     title: 'Питание',
-    angle: -40,
+    angle: -37,
     clockwise: true,
     color: '#EABA92',
     items: [
@@ -43,7 +45,7 @@ const OPTIONS = [
   },
   {
     title: 'Знания',
-    angle: -210,
+    angle: -207,
     color: '#BC65CD',
     items: [
       'узнаете, как лучше спать и высыпаться',
@@ -124,7 +126,6 @@ export default Vue.extend({
     align-items: center;
     justify-content: center;
     height: 100vh;
-    padding: 0 200px;
     width: 100%;
 
     .here {
