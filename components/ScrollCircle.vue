@@ -1,10 +1,11 @@
 <template lang="pug">
   .scroll-circle
-    
     .circle-container
-      CircleShape(:options="oneOption || options")
-      //- CircleRender(:options="oneOption || options" :rotate="rotation")
-      .here {{ animation }}
+      CircleShape(:options="options" :animation="animation")
+
+      .scroll-down
+        .text скролл вниз
+
     client-only
       MatchMedia(:max-width="900" v-slot="{match}" @change="setObservers")
         .lines
@@ -13,7 +14,6 @@
               v-for="(option, index) in options"
               :key="option.title"
               :data-index="index")
-
 
 </template>
 
@@ -62,23 +62,7 @@ export default Vue.extend({
     return {
       options: OPTIONS,
       animation: null,
-      oneOption: null,
     }
-  },
-  watch: {
-    animation(value) {
-      if (value !== null) {
-        this.oneOption = [
-          { ...this.options[value], angle: 60, clockwise: true },
-        ]
-      }
-    },
-  },
-  computed: {
-    rotation() {
-      if (this.animation === null) return 'rotate(0deg)'
-      return `rotate(${OPTIONS[this.animation].angle - 60}deg)`
-    },
   },
   methods: {
     setObservers(value) {
@@ -130,18 +114,17 @@ $bounce: 900px;
     width: 100%;
     overflow: hidden;
 
-    @media screen and (max-width: $bounce) {
-      .circle-shape {
-        left: -40%;
-        padding: 0;
-        margin-right: 30px;
-      }
-    }
-
-    .here {
+    .scroll-down {
       position: absolute;
-      top: 0;
+      bottom: 60px;
       right: 0;
+      left: 0;
+
+      @media screen and (max-width: $bounce) {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
     }
 
     @media screen and (max-width: $bounce) {
@@ -154,7 +137,7 @@ $bounce: 900px;
     .interception-line {
       @media screen and (max-width: $bounce) {
         width: 100%;
-        height: 800px;
+        height: 600px;
       }
     }
   }
