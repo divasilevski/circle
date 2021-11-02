@@ -114,6 +114,7 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
+$bounce: 900px;
 .scroll-circle {
   position: relative;
   display: flex;
@@ -127,6 +128,15 @@ export default Vue.extend({
     justify-content: center;
     height: 100vh;
     width: 100%;
+    overflow: hidden;
+
+    @media screen and (max-width: $bounce) {
+      .circle-shape {
+        left: -40%;
+        padding: 0;
+        margin-right: 30px;
+      }
+    }
 
     .here {
       position: absolute;
@@ -134,7 +144,7 @@ export default Vue.extend({
       right: 0;
     }
 
-    @media screen and (max-width: 900px) {
+    @media screen and (max-width: $bounce) {
       padding: 0;
       justify-content: flex-start;
     }
@@ -142,7 +152,7 @@ export default Vue.extend({
 
   .lines {
     .interception-line {
-      @media screen and (max-width: 900px) {
+      @media screen and (max-width: $bounce) {
         width: 100%;
         height: 800px;
       }

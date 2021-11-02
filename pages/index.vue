@@ -21,3 +21,10 @@ export default Vue.extend({
   components: { ScrollCircle },
 })
 </script>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+}
+</style>

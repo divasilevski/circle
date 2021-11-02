@@ -1,12 +1,13 @@
 <template lang="pug">
   .circle-shape
-    .circle-shape__image
-      img(src="/circle.png" alt="circle" :style="`transform: ${rotate}`")
-      .circle-inner
-      .dot(
-        v-for="(option, index) in options"
-        :key="option.title + 'dot' + index"
-        :style="calcDot(option)")
+    .circle-shape__box
+      .circle-shape__image
+        img(src="/circle.png" alt="circle" :style="`transform: ${rotate}`")
+        .circle-inner
+        .dot(
+          v-for="(option, index) in options"
+          :key="option.title + 'dot' + index"
+          :style="calcDot(option)")
 
     .option(
       v-for="(option, index) in options"
@@ -62,9 +63,9 @@ export default Vue.extend({
     calcDot(option: CirclePoint) {
       const cos = Math.cos(getRad(option.angle))
       const sin = Math.sin(getRad(option.angle))
-      const left = 260 + 260 * cos - 10
-      const bottom = 260 + 260 * sin - 10
-      return `left: ${left}px; bottom: ${bottom}px; background: ${option.color};`
+      const left = ((260 + 260 * cos - 10) / 520) * 100
+      const bottom = ((260 + 260 * sin - 10) / 520) * 100
+      return `left: ${left}%; bottom: ${bottom}%; background: ${option.color};`
     },
   },
 })
@@ -75,38 +76,43 @@ export default Vue.extend({
   position: relative;
   display: flex;
   justify-content: center;
-  padding: 0 200px;
+  padding: 0 180px;
   max-height: 520px;
   width: 100%;
-  // height: 100%; ?????
 
-  .circle-shape__image {
-    position: relative;
+  .circle-shape__box {
     max-width: 520px;
     width: 100%;
-    padding-top: 0%;
 
-    img {
-      width: 100%;
-      height: 100%;
-      transition: 1s;
-    }
+    .circle-shape__image {
+      position: relative;
+      padding-top: 100%;
 
-    .circle-inner {
-      position: absolute;
-      bottom: 5px;
-      right: 5px;
-      left: 5px;
-      top: 5px;
-      background: white;
-      border-radius: 100%;
-    }
+      img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        transition: 1s;
+      }
 
-    .dot {
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
+      .circle-inner {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        left: 5px;
+        top: 5px;
+        background: white;
+        border-radius: 100%;
+      }
+
+      .dot {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+      }
     }
   }
 
